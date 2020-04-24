@@ -21,7 +21,8 @@ public class CheckpointSum {
       .build();
 
   @UdafFactory(description = "Compute the sum or a series of records representing either the absolute value or delta",
-      aggregateSchema = "STRUCT<TYPE varchar, VALUE float>")
+      paramSchema = "STRUCT<TYPE varchar, VALUE double>",
+      aggregateSchema = "double")
   public static Udaf<Struct, Struct, Double> checkpointSum() {
 
     return new Udaf<Struct, Struct, Double>() {
