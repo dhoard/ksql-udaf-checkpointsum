@@ -39,7 +39,6 @@ public class CheckpointSum {
         }
 
         String typeVal = obj.toString();
-        System.out.println("typeValue = [" + typeVal + "]");
 
         if (!(typeVal.equals(TYPE_ABSOLUTE) || typeVal.equals(TYPE_DELTA))) {
           return null;
