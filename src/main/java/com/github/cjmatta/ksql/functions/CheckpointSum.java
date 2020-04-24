@@ -16,8 +16,8 @@ public class CheckpointSum {
   public static final String TYPE_DELTA = "delta";
 
   private static final Schema AGGREGATE_STRUCT = SchemaBuilder.struct().optional()
-      .field(TYPE, Schema.OPTIONAL_STRING_SCHEMA)
-      .field(VALUE, Schema.OPTIONAL_FLOAT32_SCHEMA)
+      .field(TYPE, Schema.STRING_SCHEMA)
+      .field(VALUE, Schema.FLOAT32_SCHEMA)
       .build();
 
   @UdafFactory(description = "Compute the sum or a series of records representing either the absolute value or delta",
@@ -33,31 +33,32 @@ public class CheckpointSum {
 
       @Override
       public Struct aggregate(final Struct input, final Struct aggregate) {
-        final Object obj = input.get(TYPE);
-
+        Object obj = input.get(TYPE);
         if (obj == null) {
           return null;
         }
 
-        final String typeVal = obj.toString();
+        String typeVal = obj.toString();
+        System.out.println("typeValue = [" + typeVal + "]");
 
         if (!(typeVal.equals(TYPE_ABSOLUTE) || typeVal.equals(TYPE_DELTA))) {
           return null;
         }
 
+        Float value = input.getFloat32(VALUE);
+
         if (typeVal.equals(TYPE_ABSOLUTE)) {
-          return aggregate.put(TYPE, TYPE_ABSOLUTE).put(VALUE, input.getFloat32(VALUE));
+          return aggregate.put(TYPE, TYPE_ABSOLUTE).put(VALUE, value);
         } else {
           return aggregate
               .put(TYPE, TYPE_DELTA)
-              .put(VALUE, Float.valueOf(aggregate.getFloat32(VALUE).floatValue() + input.getFloat32(VALUE).floatValue()));
+              .put(VALUE, aggregate.getFloat32(VALUE) + value);
         }
       }
 
       @Override
       public Struct merge(Struct agg1, Struct agg2) {
-        final String agg1Type = agg1.get(TYPE).toString();
-        final String agg2Type = agg2.get(TYPE).toString();
+        String agg2Type = agg2.get(TYPE).toString();
 
         if (agg2Type.equals(TYPE_ABSOLUTE)) {
           return agg2;
