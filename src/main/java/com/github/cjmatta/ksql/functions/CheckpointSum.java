@@ -9,25 +9,26 @@ import org.apache.kafka.connect.data.Struct;
 
 @UdafDescription(name = "checkpoint_sum", description = "Computes SUM of a stream of records where some are the absolute value, and some are the delta")
 public class CheckpointSum {
+
   private static final String TYPE = "TYPE";
   private static final String VALUE = "VALUE";
   private static final String TYPE_ABSOLUTE = "absolute";
   private static final String TYPE_DELTA = "delta";
 
-  private static final Schema AGGREGATE_SRUCT = SchemaBuilder.struct().optional()
-    .field(TYPE, Schema.OPTIONAL_STRING_SCHEMA)
-    .field(VALUE, Schema.OPTIONAL_FLOAT32_SCHEMA)
-    .build();
+  private static final Schema AGGREGATE_STRUCT = SchemaBuilder.struct().optional()
+      .field(TYPE, Schema.OPTIONAL_STRING_SCHEMA)
+      .field(VALUE, Schema.OPTIONAL_FLOAT32_SCHEMA)
+      .build();
 
   @UdafFactory(description = "Compute the sum or a series of records representing either the absolute value or delta",
-    aggregateSchema = "STRUCT<TYPE varchar, VALUE double>")
-  public static Udaf<Struct, Struct, Double> checkpointSum() {
+      aggregateSchema = "STRUCT<TYPE varchar, VALUE float>")
+  public static Udaf<Struct, Struct, Float> checkpointSum() {
 
+    return new Udaf<Struct, Struct, Float>() {
 
-    return new Udaf<Struct, Struct, Double>() {
       @Override
       public Struct initialize() {
-        return new Struct(AGGREGATE_SRUCT).put(TYPE, TYPE_ABSOLUTE).put(VALUE, 0L);
+        return new Struct(AGGREGATE_STRUCT).put(TYPE, TYPE_ABSOLUTE).put(VALUE, 0.0f);
       }
 
       @Override
@@ -45,11 +46,11 @@ public class CheckpointSum {
         }
 
         if (typeVal.equals(TYPE_ABSOLUTE)) {
-          return aggregate.put(TYPE, TYPE_ABSOLUTE).put(VALUE, (double)input.get(VALUE));
+          return aggregate.put(TYPE, TYPE_ABSOLUTE).put(VALUE, input.getFloat32(VALUE));
         } else {
           return aggregate
-            .put(TYPE, TYPE_DELTA)
-            .put(VALUE, (double)aggregate.get(VALUE) + (double)input.get(VALUE));
+              .put(TYPE, TYPE_DELTA)
+              .put(VALUE, Float.valueOf(aggregate.getFloat32(VALUE).floatValue() + input.getFloat32(VALUE).floatValue()));
         }
       }
 
@@ -61,17 +62,15 @@ public class CheckpointSum {
         if (agg2Type.equals(TYPE_ABSOLUTE)) {
           return agg2;
         } else {
-          return agg2.put(TYPE, TYPE_DELTA).put(VALUE, (double)agg1.get(VALUE)+(double)agg2.get(VALUE));
+          return agg2.put(TYPE, TYPE_DELTA)
+              .put(VALUE, agg1.getFloat32(VALUE) + agg2.getFloat32(VALUE));
         }
       }
 
       @Override
-      public Double map(Struct agg) {
-        return (double)agg.get(VALUE);
+      public Float map(Struct agg) {
+        return agg.getFloat32(VALUE).floatValue();
       }
     };
-
-
   }
-
 }

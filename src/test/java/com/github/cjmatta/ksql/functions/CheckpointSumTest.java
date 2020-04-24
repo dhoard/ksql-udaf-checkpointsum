@@ -8,8 +8,8 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-
 public class CheckpointSumTest {
+
   private static final String TYPE = "TYPE";
   private static final String VALUE = "VALUE";
   private static final String TYPE_ABSOLUTE = "absolute";
@@ -22,7 +22,7 @@ public class CheckpointSumTest {
 
   @Test
   public void shouldSumDeltas() {
-    final Udaf<Struct, Struct, Double> udaf = CheckpointSum.checkpointSum();
+    final Udaf<Struct, Struct, Float> udaf = CheckpointSum.checkpointSum();
     Struct agg = udaf.initialize();
 
     final Struct[] values = new Struct[] {
@@ -35,7 +35,8 @@ public class CheckpointSumTest {
       agg = udaf.aggregate(thisValue, agg);
     }
 
-    assertEquals(3.0, (double)agg.getFloat32(VALUE), 0);
+    assertEquals(3.0f, agg.getFloat32(VALUE), 0);
+
 
   }
 }
