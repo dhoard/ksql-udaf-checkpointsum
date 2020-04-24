@@ -1,4 +1,4 @@
 .idea
 target
 ksql-udaf-checkpointsum.iml
-
+dependency-reduced-pom.xml
