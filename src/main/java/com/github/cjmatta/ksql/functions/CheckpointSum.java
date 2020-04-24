@@ -23,17 +23,17 @@ public class CheckpointSum {
   @UdafFactory(description = "Compute the sum or a series of records representing either the absolute value or delta",
       paramSchema = "STRUCT<TYPE varchar, VALUE double>",
       aggregateSchema = "double")
-  public static Udaf<Struct, Struct, Double> checkpointSum() {
+  public static Udaf<Struct, Double, Double> checkpointSum() {
 
-    return new Udaf<Struct, Struct, Double>() {
+    return new Udaf<Struct, Double, Double>() {
 
       @Override
-      public Struct initialize() {
-        return new Struct(AGGREGATE_STRUCT).put(TYPE, TYPE_ABSOLUTE).put(VALUE, 0.0d);
+      public Double initialize() {
+        return 0.0d;
       }
 
       @Override
-      public Struct aggregate(final Struct input, final Struct aggregate) {
+      public Double aggregate(final Struct input, final Double aggregate) {
         Object obj = input.get(TYPE);
         if (obj == null) {
           return null;
@@ -48,16 +48,15 @@ public class CheckpointSum {
         Double value = input.getFloat64(VALUE).doubleValue();
 
         if (typeVal.equals(TYPE_ABSOLUTE)) {
-          return aggregate.put(TYPE, TYPE_ABSOLUTE).put(VALUE, value);
+          return value;
         } else {
-          return aggregate
-              .put(TYPE, TYPE_DELTA)
-              .put(VALUE, aggregate.getFloat64(VALUE) + value);
+          return aggregate + value;
         }
       }
 
       @Override
-      public Struct merge(Struct agg1, Struct agg2) {
+      public Double merge(Double agg1, Double agg2) {
+        /*
         String agg2Type = agg2.get(TYPE).toString();
 
         if (agg2Type.equals(TYPE_ABSOLUTE)) {
@@ -66,11 +65,13 @@ public class CheckpointSum {
           return agg2.put(TYPE, TYPE_DELTA)
               .put(VALUE, agg1.getFloat64(VALUE) + agg2.getFloat64(VALUE));
         }
+        */
+        return agg2;
       }
 
       @Override
-      public Double map(Struct agg) {
-        return agg.getFloat64(VALUE).doubleValue();
+      public Double map(Double aggregate) {
+        return aggregate;
       }
     };
   }
