@@ -10,33 +10,63 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CheckpointSumTest {
 
-  private static final String TYPE = "TYPE";
-  private static final String VALUE = "VALUE";
-  private static final String TYPE_ABSOLUTE = "absolute";
-  private static final String TYPE_DELTA = "delta";
-
   private static final Schema INPUT_STRUCT = SchemaBuilder.struct().optional()
-    .field(TYPE, Schema.OPTIONAL_STRING_SCHEMA)
-    .field(VALUE, Schema.OPTIONAL_FLOAT32_SCHEMA)
+    .field(CheckpointSum.TYPE, Schema.OPTIONAL_STRING_SCHEMA)
+    .field(CheckpointSum.VALUE, Schema.OPTIONAL_FLOAT32_SCHEMA)
     .build();
 
   @Test
-  public void shouldSumDeltas() {
-    final Udaf<Struct, Struct, Float> udaf = CheckpointSum.checkpointSum();
-    Struct agg = udaf.initialize();
+  public void test() {
+    Udaf<Struct, Struct, Float> udaf = CheckpointSum.checkpointSum();
+    Struct aggregate = udaf.initialize();
 
-    final Struct[] values = new Struct[] {
-      new Struct(INPUT_STRUCT).put(TYPE, TYPE_DELTA).put(VALUE, 1.0f),
-      new Struct(INPUT_STRUCT).put(TYPE, TYPE_DELTA).put(VALUE, 1.0f),
-      new Struct(INPUT_STRUCT).put(TYPE, TYPE_DELTA).put(VALUE, 1.0f)
+    Struct[] values = new Struct[] {
+      new Struct(INPUT_STRUCT).put(CheckpointSum.TYPE, CheckpointSum.TYPE_DELTA).put(CheckpointSum.VALUE, 1.0f),
+      new Struct(INPUT_STRUCT).put(CheckpointSum.TYPE, CheckpointSum.TYPE_DELTA).put(CheckpointSum.VALUE, 1.0f),
+      new Struct(INPUT_STRUCT).put(CheckpointSum.TYPE, CheckpointSum.TYPE_DELTA).put(CheckpointSum.VALUE, 1.0f)
     };
 
-    for (final Struct thisValue: values) {
-      agg = udaf.aggregate(thisValue, agg);
+    for (Struct thisValue: values) {
+      log("value = [" + aggregate.getFloat32(CheckpointSum.VALUE) + "]");
+      aggregate = udaf.aggregate(thisValue, aggregate);
     }
 
-    assertEquals(3.0f, agg.getFloat32(VALUE), 0);
+    log("value = [" + aggregate.getFloat32(CheckpointSum.VALUE) + "]");
+    assertEquals(3.0f, aggregate.getFloat32(CheckpointSum.VALUE), 0);
 
+    aggregate = udaf.aggregate(aggregate, new Struct(INPUT_STRUCT).put(
+        CheckpointSum.TYPE, CheckpointSum.TYPE_DELTA).put(CheckpointSum.VALUE, 1.0f));
 
+    log("value = [" + aggregate.getFloat32(CheckpointSum.VALUE) + "]");
+    assertEquals(4.0f, aggregate.getFloat32(CheckpointSum.VALUE), 0);
+
+    aggregate = udaf.aggregate(aggregate, new Struct(INPUT_STRUCT).put(
+        CheckpointSum.TYPE, CheckpointSum.TYPE_DELTA).put(CheckpointSum.VALUE, 1.0f));
+
+    log("value = [" + aggregate.getFloat32(CheckpointSum.VALUE) + "]");
+    assertEquals(5.0f, aggregate.getFloat32(CheckpointSum.VALUE), 0);
+
+    log("reset to absolute...");
+
+    aggregate = udaf.aggregate(aggregate, new Struct(INPUT_STRUCT).put(
+        CheckpointSum.TYPE, CheckpointSum.TYPE_ABSOLUTE).put(CheckpointSum.VALUE, 0.0f));
+
+    log("value = [" + aggregate.getFloat32(CheckpointSum.VALUE) + "]");
+
+    aggregate = udaf.aggregate(aggregate, new Struct(INPUT_STRUCT).put(
+        CheckpointSum.TYPE, CheckpointSum.TYPE_DELTA).put(CheckpointSum.VALUE, 1.0f));
+
+    log("value = [" + aggregate.getFloat32(CheckpointSum.VALUE) + "]");
+    assertEquals(1.0f, aggregate.getFloat32(CheckpointSum.VALUE), 0);
+
+    aggregate = udaf.aggregate(aggregate, new Struct(INPUT_STRUCT).put(
+        CheckpointSum.TYPE, CheckpointSum.TYPE_DELTA).put(CheckpointSum.VALUE, 1.0f));
+
+    log("value = [" + aggregate.getFloat32(CheckpointSum.VALUE) + "]");
+    assertEquals(2.0f, aggregate.getFloat32(CheckpointSum.VALUE), 0);
+  }
+
+  private static void log(String value) {
+    System.out.println(value);
   }
 }

@@ -10,10 +10,10 @@ import org.apache.kafka.connect.data.Struct;
 @UdafDescription(name = "checkpoint_sum", description = "Computes SUM of a stream of records where some are the absolute value, and some are the delta")
 public class CheckpointSum {
 
-  private static final String TYPE = "TYPE";
-  private static final String VALUE = "VALUE";
-  private static final String TYPE_ABSOLUTE = "absolute";
-  private static final String TYPE_DELTA = "delta";
+  public static final String TYPE = "TYPE";
+  public static final String VALUE = "VALUE";
+  public static final String TYPE_ABSOLUTE = "absolute";
+  public static final String TYPE_DELTA = "delta";
 
   private static final Schema AGGREGATE_STRUCT = SchemaBuilder.struct().optional()
       .field(TYPE, Schema.OPTIONAL_STRING_SCHEMA)
