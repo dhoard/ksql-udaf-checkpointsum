@@ -1,17 +1,17 @@
 # ksql-udaf-checkpointsum
-A udaf for ksqlDB that computes SUM of a stream of records where some are the absolute value, and some are the delta
+A UDAF for ksqlDB that computes the SUM of a stream of records, when TYPE is "delta". If a record with with a TYPE of "absolute" is found, it resets the sum to the absolute value.
 
 Given a stream of events below, this function correctly outputs  values based on type. 
 ```$xslt
-t1:{"account": "AAA", "security": "xyz", "type": "state", "amount": 10}
+t1:{"account": "AAA", "security": "xyz", "type": "absolute", "amount": 10}
 t2:{"account": "AAA", "security": "zzz", "type": "delta", "amount": 1}
 t3:{"account": "AAA", "security": "zzz", "type": "delta", "amount": 1}
 t4:{"account": "AAA", "security": "zzz", "type": "delta", "amount": 1}
 t5:{"account": "AAA", "security": "zzz", "type": "delta", "amount": 1}
 t6:{"account": "AAA", "security": "zzz", "type": "delta", "amount": 1}
-t7:{"account": "AAA", "security": "xyz", "type": "state", "amount": 20}
+t7:{"account": "AAA", "security": "xyz", "type": "absolute", "amount": 20}
 t8:{"account": "AAA", "security": "xyz", "type": "delta", "amount": 1}
-t9:{"account": "AAA", "security": "zzz", "type": "state", "amount": 2}
+t9:{"account": "AAA", "security": "zzz", "type": "absolute", "amount": 2}
 t9:{"account": "AAA", "security": "zzz", "type": "delta", "amount": 1}
 
 ```
