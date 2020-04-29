@@ -1,9 +1,9 @@
 # ksql-udaf-checkpointsum
 A UDAF for ksqlDB that computes the SUM of a stream of records.
 
-When "type" is "delta", the "amount" will be added to the aggregate amount (sum)
+When "type" is "delta" or "d" (case insensitive), the "amount" will be added to the aggregate amount (sum)
 
-When "type" is "absolute", the "amount" will be reset, ignoring the previous aggregate amount (sum)
+When "type" is "absolute" or "a" (case insensitive), the "amount" will be reset, ignoring the previous aggregate amount (sum)
 
 Given a stream of events below, this function correctly outputs  values based on type. 
 ```$xslt
