@@ -5,6 +5,8 @@ When "type" is "delta" or "d" (case insensitive), the "amount" will be added to 
 
 When "type" is "absolute" or "a" (case insensitive), the "amount" will be reset, ignoring the previous aggregate amount (sum)
 
+Out of order messages are not supported.
+
 Given a stream of events below, this function correctly outputs  values based on type. 
 ```$xslt
 t1:{"account": "AAA", "security": "xyz", "type": "absolute", "amount": 10}
