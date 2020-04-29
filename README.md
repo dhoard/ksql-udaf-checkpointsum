@@ -22,12 +22,12 @@ t9:{"account": "AAA", "security": "zzz", "type": "delta", "amount": 1}
 
 at t3 above:
 ```$xslt
-{"account": "AAA", "security": "xyz", "type": "state", "amount": 10}
+{"account": "AAA", "security": "xyz", "type": "absolute", "amount": 10}
 {"account": "AAA", "security": "zzz", "type": "delta", "amount": 3}
 ```
 
 at t9 above:
 ```$xslt
-{"account": "AAA", "security": "xyz", "type": "state", "amount": 21}
+{"account": "AAA", "security": "xyz", "type": "absolute", "amount": 21}
 {"account": "AAA", "security": "zzz", "type": "delta", "amount": 7}
 ```
