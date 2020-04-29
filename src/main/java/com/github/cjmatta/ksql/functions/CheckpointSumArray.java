@@ -13,7 +13,10 @@ public class CheckpointSumArray {
     public static final String VALUE = "VALUE";
 
     public static final String DELTA = "DELTA";
+    public static final String DELTA_SHORT = "D";
+
     public static final String ABSOLUTE = "ABSOLUTE";
+    public static final String ABSOLUTE_SHORT = "A";
 
     @UdafFactory(description = "CheckpointSumArray UDAF", paramSchema = "ARRAY<VARCHAR>")
     public static Udaf<List<String>, Double, Double> getUDAF() {
@@ -27,7 +30,6 @@ public class CheckpointSumArray {
             public Double aggregate(final List<String> list, final Double aDouble) {
                 if (null == list) {
                     System.err.println("parameter array is null");
-
                     return null;
                 }
 
@@ -42,13 +44,12 @@ public class CheckpointSumArray {
                     value = Double.valueOf(list.get(1));
                 } catch (Throwable t) {
                     System.err.println("value parameter can't be cast to a Double");
-
                     return null;
                 }
 
-                if (DELTA.equalsIgnoreCase(type)) {
+                if (DELTA.equalsIgnoreCase(type) || DELTA_SHORT.equalsIgnoreCase(type)) {
                     return aDouble + value;
-                } else if (ABSOLUTE.equalsIgnoreCase(type)) {
+                } else if (ABSOLUTE.equalsIgnoreCase(type) || ABSOLUTE_SHORT.equalsIgnoreCase(type)) {
                     return value;
                 } else {
                     System.err.println("Invalid type, type = [" + type + "]");

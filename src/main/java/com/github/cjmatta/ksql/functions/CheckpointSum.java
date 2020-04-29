@@ -12,7 +12,10 @@ public class CheckpointSum  {
     public static final String VALUE = "VALUE";
 
     public static final String DELTA = "DELTA";
+    public static final String DELTA_SHORT = "D";
+
     public static final String ABSOLUTE = "ABSOLUTE";
+    public static final String ABSOLUTE_SHORT = "A";
 
     @UdafFactory(description = "CheckpointSum UDAF", paramSchema = "STRUCT<TYPE VARCHAR, VALUE DOUBLE>")
     public static Udaf<Struct, Double, Double> getUDAF() {
@@ -28,18 +31,17 @@ public class CheckpointSum  {
 
                 if (null == object) {
                     System.err.println("object is null");
-
                     return null;
                 }
 
-                String objectName = object.toString();
+                String type = object.toString();
 
-                if (DELTA.equalsIgnoreCase(objectName)) {
+                if (DELTA.equalsIgnoreCase(type) || DELTA_SHORT.equalsIgnoreCase(type)) {
                     return aDouble + (Double) struct.get(VALUE);
-                } else if (ABSOLUTE.equalsIgnoreCase(objectName)) {
+                } else if (ABSOLUTE.equalsIgnoreCase(type) || ABSOLUTE_SHORT.equalsIgnoreCase(type)) {
                     return (Double) struct.get(VALUE);
                 } else {
-                    System.err.println("Invalid type, type = [" + objectName + "]");
+                    System.err.println("Invalid type, type = [" + type + "]");
                     return null;
                 }
             }
