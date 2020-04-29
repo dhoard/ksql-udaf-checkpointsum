@@ -30,8 +30,7 @@ public class CheckpointSum  {
                 Object object = struct.get(TYPE);
 
                 if (null == object) {
-                    System.err.println("object is null");
-                    return null;
+                    throw new RuntimeException("object is null");
                 }
 
                 String type = object.toString();
@@ -41,13 +40,12 @@ public class CheckpointSum  {
                 } else if (ABSOLUTE.equalsIgnoreCase(type) || ABSOLUTE_SHORT.equalsIgnoreCase(type)) {
                     return (Double) struct.get(VALUE);
                 } else {
-                    System.err.println("Invalid type, type = [" + type + "]");
-                    return null;
+                    throw new RuntimeException("Invalid type, type = [" + type + "]");
                 }
             }
 
             public Double merge(final Double aDouble, final Double a1) {
-                return null;
+                throw new RuntimeException("merge is not supported");
             }
 
             public Double map(final Double aDouble) {

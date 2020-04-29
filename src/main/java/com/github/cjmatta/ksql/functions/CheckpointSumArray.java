@@ -29,12 +29,11 @@ public class CheckpointSumArray {
 
             public Double aggregate(final List<String> list, final Double aDouble) {
                 if (null == list) {
-                    System.err.println("parameter array is null");
-                    return null;
+                    throw new RuntimeException("parameter array is null");
                 }
 
                 if (2 != list.size()) {
-                    System.err.println("parameter array requires 2 parameters, parameter count = [" + list.size() + "]");
+                    throw new RuntimeException("parameter array requires 2 parameters, parameter count = [" + list.size() + "]");
                 }
 
                 String type = list.get(0);
@@ -43,8 +42,7 @@ public class CheckpointSumArray {
                 try {
                     value = Double.valueOf(list.get(1));
                 } catch (Throwable t) {
-                    System.err.println("value parameter can't be cast to a Double");
-                    return null;
+                    throw new RuntimeException("value parameter can't be cast to a Double");
                 }
 
                 if (DELTA.equalsIgnoreCase(type) || DELTA_SHORT.equalsIgnoreCase(type)) {
@@ -52,13 +50,12 @@ public class CheckpointSumArray {
                 } else if (ABSOLUTE.equalsIgnoreCase(type) || ABSOLUTE_SHORT.equalsIgnoreCase(type)) {
                     return value;
                 } else {
-                    System.err.println("Invalid type, type = [" + type + "]");
-                    return null;
+                    throw new RuntimeException("Invalid type, type = [" + type + "]");
                 }
             }
 
             public Double merge(final Double aDouble, final Double a1) {
-                return null;
+                throw new RuntimeException("merge is not supported");
             }
 
             public Double map(final Double aDouble) {
