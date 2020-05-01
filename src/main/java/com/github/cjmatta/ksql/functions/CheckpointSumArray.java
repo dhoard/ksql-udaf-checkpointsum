@@ -24,38 +24,38 @@ public class CheckpointSumArray {
         return new Udaf<List<String>, Double, Double>() {
 
             public Double initialize() {
-                return 0.0;
+                return 0d;
             }
 
-            public Double aggregate(final List<String> list, final Double aDouble) {
+            public Double aggregate(final List<String> list, final Double aggregateValue) {
                 if (null == list) {
-                    throw new RuntimeException("parameter array is null");
+                    throw new RuntimeException("Parameter array is null");
                 }
 
                 if (2 != list.size()) {
-                    throw new RuntimeException("parameter array requires 2 parameters, parameter count = [" + list.size() + "]");
+                    throw new RuntimeException("Parameter array requires 2 parameters, parameter count = [" + list.size() + "]");
                 }
 
                 String type = list.get(0);
-                Double value = 0d;
+                double value = 0d;
 
                 try {
                     value = Double.valueOf(list.get(1));
                 } catch (Throwable t) {
-                    throw new RuntimeException("value parameter can't be cast to a Double");
+                    throw new RuntimeException("VALUE parameter can't be converted to a double");
                 }
 
                 if (DELTA.equalsIgnoreCase(type) || DELTA_SHORT.equalsIgnoreCase(type)) {
-                    return aDouble + value;
+                    return aggregateValue + value;
                 } else if (ABSOLUTE.equalsIgnoreCase(type) || ABSOLUTE_SHORT.equalsIgnoreCase(type)) {
                     return value;
                 } else {
-                    throw new RuntimeException("Invalid type, type = [" + type + "]");
+                    throw new RuntimeException("Invalid TYPE = [" + type + "]");
                 }
             }
 
             public Double merge(final Double aDouble, final Double a1) {
-                throw new RuntimeException("merge is not supported");
+                throw new RuntimeException("Merge is not supported");
             }
 
             public Double map(final Double aDouble) {
