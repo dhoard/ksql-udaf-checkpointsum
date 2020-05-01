@@ -4,7 +4,6 @@ import io.confluent.ksql.function.udaf.Udaf;
 import io.confluent.ksql.function.udaf.UdafDescription;
 import io.confluent.ksql.function.udaf.UdafFactory;
 import java.util.List;
-import org.apache.kafka.connect.data.Struct;
 
 @UdafDescription(name = "checkpoint_sum_array", description = "CheckpointSumArray UDAF.")
 public class CheckpointSumArray {
@@ -27,13 +26,15 @@ public class CheckpointSumArray {
                 return 0d;
             }
 
-            public Double aggregate(final List<String> list, final Double aggregateValue) {
+            public Double aggregate(final List<String> list, Double aggregateValue) {
                 if (null == list) {
-                    throw new RuntimeException("Parameter array is null");
+                    printException("Parameter array is null");
+                    return null;
                 }
 
                 if (2 != list.size()) {
-                    throw new RuntimeException("Parameter array requires 2 parameters, parameter count = [" + list.size() + "]");
+                    printException("Parameter array requires 2 parameters, parameter count = [" + list.size() + "]");
+                    return null;
                 }
 
                 String type = list.get(0);
@@ -42,7 +43,13 @@ public class CheckpointSumArray {
                 try {
                     value = Double.valueOf(list.get(1));
                 } catch (Throwable t) {
-                    throw new RuntimeException("VALUE parameter can't be converted to a double");
+                    printException("VALUE parameter can't be converted to a double");
+                    return null;
+                }
+
+                if (null == aggregateValue) {
+                    System.err.println("null aggregate value, reset to default");
+                    aggregateValue = initialize();
                 }
 
                 if (DELTA.equalsIgnoreCase(type) || DELTA_SHORT.equalsIgnoreCase(type)) {
@@ -50,7 +57,8 @@ public class CheckpointSumArray {
                 } else if (ABSOLUTE.equalsIgnoreCase(type) || ABSOLUTE_SHORT.equalsIgnoreCase(type)) {
                     return value;
                 } else {
-                    throw new RuntimeException("Invalid TYPE = [" + type + "]");
+                    printException("Invalid TYPE = [" + type + "]");
+                    return null;
                 }
             }
 
@@ -62,5 +70,10 @@ public class CheckpointSumArray {
                 return aDouble;
             }
         };
+    }
+
+    private static void printException(String message) {
+        RuntimeException runtimeException = new RuntimeException(message);
+        runtimeException.printStackTrace();
     }
 }

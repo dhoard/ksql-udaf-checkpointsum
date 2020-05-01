@@ -3,8 +3,6 @@ package com.github.cjmatta.ksql.functions;
 import io.confluent.ksql.function.udaf.Udaf;
 import io.confluent.ksql.function.udaf.UdafDescription;
 import io.confluent.ksql.function.udaf.UdafFactory;
-import java.util.List;
-import org.apache.kafka.connect.data.Field;
 import org.apache.kafka.connect.data.Struct;
 
 @UdafDescription(name = "checkpoint_sum", description = "CheckpointSum UDAF.")
@@ -28,16 +26,18 @@ public class CheckpointSum  {
                 return 0d;
             }
 
-            public Double aggregate(final Struct struct, final Double aggregateValue) {
+            public Double aggregate(final Struct struct, Double aggregateValue) {
                 Object typeObject = struct.get(TYPE);
                 Object valueObject = struct.get(VALUE);
 
                 if (null == typeObject) {
-                    throw new RuntimeException("TYPE is null");
+                    printException("TYPE is null");
+                    return null;
                 }
 
                 if (null == valueObject) {
-                    throw new RuntimeException("VALUE is null");
+                    printException("VALUE is null");
+                    return null;
                 }
 
                 String type = typeObject.toString();
@@ -46,7 +46,13 @@ public class CheckpointSum  {
                 try {
                     value = struct.getFloat64(VALUE);
                 } catch (Throwable t) {
-                    throw new RuntimeException("VALUE parameter can't be converted to a double");
+                    printException("VALUE parameter can't be converted to a double");
+                    return null;
+                }
+
+                if (null == aggregateValue) {
+                    System.err.println("null aggregate value, reset to default");
+                    aggregateValue = initialize();
                 }
 
                 if (DELTA.equalsIgnoreCase(type) || DELTA_SHORT.equalsIgnoreCase(type)) {
@@ -54,7 +60,8 @@ public class CheckpointSum  {
                 } else if (ABSOLUTE.equalsIgnoreCase(type) || ABSOLUTE_SHORT.equalsIgnoreCase(type)) {
                     return value;
                 } else {
-                    throw new RuntimeException("Invalid TYPE = [" + type + "]");
+                    printException("Invalid TYPE = [" + type + "]");
+                    return null;
                 }
             }
 
@@ -66,5 +73,10 @@ public class CheckpointSum  {
                 return value;
             }
         };
+    }
+
+    private static void printException(String message) {
+        RuntimeException runtimeException = new RuntimeException(message);
+        runtimeException.printStackTrace();
     }
 }
